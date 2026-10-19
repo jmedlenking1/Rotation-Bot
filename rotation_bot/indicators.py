@@ -75,3 +75,33 @@ def angled_up(closes, period, days=5):
     if len(s) <= days:
         return False
     return s[-1] > s[-1 - days]
+
+
+def adx(bars, period=14):
+    """Wilder ADX from bars [(date, close, high, low), ...]. None if highs/lows are missing."""
+    if len(bars) < period * 3 or len(bars[0]) < 4:
+        return None
+    tr, pdm, mdm = [], [], []
+    for i in range(1, len(bars)):
+        _, c, h, l = bars[i][:4]
+        pc, ph, pl = bars[i - 1][1], bars[i - 1][2], bars[i - 1][3]
+        up, dn = h - ph, pl - l
+        pdm.append(up if up > dn and up > 0 else 0.0)
+        mdm.append(dn if dn > up and dn > 0 else 0.0)
+        tr.append(max(h - l, abs(h - pc), abs(l - pc)))
+    atr, ap, am = sum(tr[:period]), sum(pdm[:period]), sum(mdm[:period])
+    dxs = []
+    for i in range(period, len(tr)):
+        atr = atr - atr / period + tr[i]
+        ap = ap - ap / period + pdm[i]
+        am = am - am / period + mdm[i]
+        if atr == 0:
+            continue
+        pdi, mdi = 100 * ap / atr, 100 * am / atr
+        dxs.append(0.0 if pdi + mdi == 0 else 100 * abs(pdi - mdi) / (pdi + mdi))
+    if len(dxs) < period:
+        return None
+    a = sum(dxs[:period]) / period
+    for d in dxs[period:]:
+        a = (a * (period - 1) + d) / period
+    return a

@@ -163,18 +163,19 @@ def _rank_stocks(cfg, bars, holdings_map, buyable, secs, held, st, day, log):
                 c = rules.closes(bars[sym])
                 e21 = ind.ema_series(c, 21)
                 m["slope21"] = (e21[-1] / e21[-6] - 1) * 100
+                m["adx"] = ind.adx(bars[sym])
                 out.append([m["rs"], sym, etf, m])
     _score(cfg, out)
     out.sort(key=lambda x: -x[3]["score"])
     if out:
         log.append("Passed checklist (by score: 60% RS + 40% chart): " + ", ".join(
-            "%s %.0f (RS %+.1f)" % (s, m["score"], rs) for rs, s, _, m in out[:8]))
+            "%s %.0f (RS %+.1f, ADX %s)" % (s, m["score"], rs, "%.0f" % m["adx"] if m.get("adx") is not None else "n/a") for rs, s, _, m in out[:8]))
     return [tuple(x) for x in out]
 
 
 def _score(cfg, cands):
     """Score out of 100. RS share is scaled across today's passers; chart share =
-    trend slope (15) + closeness to the 21 EMA (15) + RSI sweet spot 55-68 (10)."""
+    ADX trend strength (10) + 21 EMA slope (10) + closeness to the 21 EMA (12) + RSI sweet spot 55-68 (8)."""
     if not cands:
         return
     w = cfg.get("ranking", {}).get("rs_weight", 60)
@@ -183,11 +184,13 @@ def _score(cfg, cands):
     max_dist = cfg["entry"]["max_ema_distance_pct"]
     for rs, sym, etf, m in cands:
         rs_part = w * ((rs - lo) / (hi - lo) if hi > lo else 1.0)
-        trend = 15 * max(0.0, min(m["slope21"] / 2.0, 1.0))      # 2%+ rise in the 21 EMA over 5 days = full marks
-        entry = 15 * max(0.0, 1 - m["dist"] / max_dist)          # right at the 21 EMA = full, at the cap = 0
+        a = m.get("adx")
+        adx_pts = 5.0 if a is None else 10 * max(0.0, min((a - 15) / 15, 1.0))  # ADX 15 = 0, 30+ = full
+        trend = 10 * max(0.0, min(m["slope21"] / 2.0, 1.0))      # 2%+ rise in the 21 EMA over 5 days = full marks
+        entry = 12 * max(0.0, 1 - m["dist"] / max_dist)          # right at the 21 EMA = full, at the cap = 0
         r = m["rsi"]
-        rsi_pts = 10.0 if 55 <= r <= 68 else (10 * max(0.0, (r - 45) / 10) if r < 55 else 10 * max(0.0, (70 - r) / 2))
-        chart = (trend + entry + rsi_pts) * (100 - w) / 40
+        rsi_pts = 8.0 if 55 <= r <= 68 else (8 * max(0.0, (r - 45) / 10) if r < 55 else 8 * max(0.0, (70 - r) / 2))
+        chart = (adx_pts + trend + entry + rsi_pts) * (100 - w) / 40
         m["score"] = rs_part + chart
         m["chart"] = chart
 

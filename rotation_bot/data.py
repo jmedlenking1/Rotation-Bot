@@ -26,7 +26,7 @@ def _get(url, headers=None, tries=3):
 
 
 def daily_bars(symbols, key, secret, days=320, feed="iex"):
-    """{symbol: [(YYYY-MM-DD, close), ...] oldest -> newest}, split/dividend adjusted."""
+    """{symbol: [(YYYY-MM-DD, close, high, low), ...] oldest -> newest}, split/dividend adjusted."""
     headers = {"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret, "User-Agent": "rotation-bot"}
     start = (date.today() - timedelta(days=days)).isoformat()
     out = {s: [] for s in symbols}
@@ -40,7 +40,7 @@ def daily_bars(symbols, key, secret, days=320, feed="iex"):
                 q["page_token"] = token
             data = json.loads(_get(ALPACA_DATA + "?" + urllib.parse.urlencode(q), headers))
             for sym, bars in (data.get("bars") or {}).items():
-                out[sym].extend((b["t"][:10], float(b["c"])) for b in bars)
+                out[sym].extend((b["t"][:10], float(b["c"]), float(b["h"]), float(b["l"])) for b in bars)
             token = data.get("next_page_token")
             if not token:
                 break

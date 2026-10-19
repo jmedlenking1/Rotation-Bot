@@ -9,15 +9,15 @@ SECTORS = ["XLK", "XLC", "XLI", "XLE", "XLF", "XLY", "XLP", "XLB", "XLV", "XLU",
 # ---------- helpers on a bar list [(date_str, close), ...] oldest -> newest ----------
 
 def closes(bars):
-    return [c for _, c in bars]
+    return [b[1] for b in bars]
 
 
 def close_on_or_before(bars, days_back):
     last = date.fromisoformat(bars[-1][0])
     target = (last - timedelta(days=days_back)).isoformat()
-    for d, c in reversed(bars):
-        if d <= target:
-            return c
+    for b in reversed(bars):
+        if b[0] <= target:
+            return b[1]
     return None
 
 

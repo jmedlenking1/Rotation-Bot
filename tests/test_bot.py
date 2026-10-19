@@ -87,6 +87,13 @@ class Planner(unittest.TestCase):
         for o in buys:
             self.assertLessEqual(o["qty"] * o["limit"], 3000.01)
 
+    def test_adx_strong_trend_vs_chop(self):
+        trend = [(str(i), 100 + i, 101 + i, 99 + i) for i in range(80)]
+        chop = [(str(i), 100 + (1 if i % 2 else -1), 102, 98) for i in range(80)]
+        self.assertGreater(ind.adx(trend), 40)
+        self.assertLess(ind.adx(chop), 20)
+        self.assertIsNone(ind.adx([(str(i), 100) for i in range(80)]))
+
     def test_score_prefers_clean_chart_over_small_rs_edge(self):
         from rotation_bot.planner import _score
         base = {"rsi": 62, "slope21": 2.0}
