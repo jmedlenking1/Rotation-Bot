@@ -77,6 +77,13 @@ def main():
         lines = ["## Plan %s — %s — equity $%.2f, cash $%.2f%s" % (
             p, date.today().isoformat(), account["equity"], account["cash"], "" if trade else " (DRY RUN)")]
         lines += ["- " + l for l in res["log"]]
+        if trade and res["orders"]:
+            try:  # a rerun replaces earlier unfilled orders instead of doubling them
+                if broker.open_orders():
+                    broker.cancel_all()
+                    lines.append("- Cancelled earlier unfilled orders before placing today's.")
+            except Exception as e:
+                lines.append("- Could not check open orders: %s" % e)
         for o in res["orders"]:
             status = "logged only"
             if trade:

@@ -3,6 +3,7 @@ name: Daily rotation run
 on:
   schedule:
     - cron: "40 21 * * 1-5"   # 5:40 PM EDT / 4:40 PM EST, weekdays, after the close
+    - cron: "5 22 * * 1-5"    # backup run 6:05 PM EDT in case GitHub skips or delays the first (reruns are safe)
   workflow_dispatch: {}        # lets you press "Run workflow" by hand
 
 permissions:
