@@ -8,6 +8,7 @@
   "plan_b": {
     "description": "70% leading sector ETF(s), 30% split across top stocks",
     "core_pct": 70,
+    "core_etfs": 1,
     "satellite_count": 2
   },
   "entry": {

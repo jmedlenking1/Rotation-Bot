@@ -226,16 +226,31 @@ def _plan_a(cfg, bars, candidates, held, equity, cash, buy_limit, log):
 
 def _plan_b(cfg, bars, candidates, buyable, held, equity, cash, buy_limit, log):
     b = cfg["plan_b"]
-    cores = buyable[:2]
-    buys = []
-    core_each = equity * b["core_pct"] / 100 / len(cores)
-    for etf in cores:
+    n_core = b.get("core_etfs", 1)
+    max_dist = cfg["entry"]["max_ema_distance_pct"]
+    held_cores = [s for s in held if s in rules.SECTORS]
+    cores = []
+    for etf in buyable:                      # buyable is already ranked by sector RS
+        if len(held_cores) + len(cores) >= n_core:
+            break
         if etf in held:
             continue
-        o = _buy(etf, min(core_each, cash), bars[etf][-1][1], buy_limit, "CORE ENTRY %s" % etf)
+        c = rules.closes(bars[etf])
+        e21 = ind.ema(c, 21)
+        dist = (c[-1] - e21) / c[-1] * 100
+        if c[-1] <= e21 or dist > max_dist:
+            log.append("Plan B: skipping %s as core, %.1f%% from its 21 EMA." % (etf, dist))
+            continue
+        cores.append(etf)
+    buys = []
+    core_each = equity * b["core_pct"] / 100 / n_core
+    for etf in cores:
+        o = _buy(etf, min(core_each, cash), bars[etf][-1][1], buy_limit, "CORE ENTRY %s (%d%% of account)" % (etf, b["core_pct"] // n_core))
         if o:
             buys.append(o)
             cash -= o["qty"] * o["limit"]
+    core_sectors = set(held_cores) | set(cores)
+    candidates = [x for x in candidates if x[2] in core_sectors]   # satellites come from the core's sector
     sat_each = equity * (100 - b["core_pct"]) / 100 / b["satellite_count"]
     have = len([s for s in held if s not in rules.SECTORS])
     for rs, sym, etf, m in candidates:
