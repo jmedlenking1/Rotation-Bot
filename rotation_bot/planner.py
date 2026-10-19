@@ -39,7 +39,7 @@ def market_view(bars, macro):
     ratio = spy[-1] / ma200 if ma200 else None
     vix = macro["vix"][1]
     conf = rules.confidence(ratio, vix)
-    dep = rules.deployment(conf, vix)
+    dep = rules.deployment(conf, vix, macro["curve"], macro["cpi"][1])
     reg = rules.regime(macro["curve"], macro["cpi"][1])
     return {"spy": spy[-1], "ma200": ma200, "ratio": ratio, "vix": vix, "confidence": conf,
             "deployment": dep, "regime": reg, "curve": macro["curve"], "cpi": macro["cpi"][1]}
@@ -116,6 +116,7 @@ def plan_day(plan, cfg, bars, macro, holdings_map, positions, account, state):
 
     # 5. entries
     buys = []
+    factor = rules.size_factor(mv["deployment"], cfg.get("deployment", {}).get("conservative_size", 0.5))
     if not rules.can_enter(mv["deployment"]):
         log.append("No new entries: deployment is %s." % mv["deployment"])
     elif paused:
@@ -125,10 +126,12 @@ def plan_day(plan, cfg, bars, macro, holdings_map, positions, account, state):
         log.append("No new entries: no LEADING sector under RSI 70.")
     else:
         candidates = _rank_stocks(cfg, bars, holdings_map, buyable, secs, remaining, st, day, log)
+        if factor < 1:
+            log.append("Deployment is %s: new entries at %d%% size." % (mv["deployment"], factor * 100))
         if plan == "A":
-            buys = _plan_a(cfg, bars, candidates, remaining, equity, cash, buy_limit, log)
+            buys = _plan_a(cfg, bars, candidates, remaining, equity * factor, cash, buy_limit, log)
         else:
-            buys = _plan_b(cfg, bars, candidates, buyable, remaining, equity, cash, buy_limit, log)
+            buys = _plan_b(cfg, bars, candidates, buyable, remaining, equity * factor, cash, buy_limit, log)
 
     # safety on the order list: exits/trims always go; buys are capped
     sells = [o for o in orders]

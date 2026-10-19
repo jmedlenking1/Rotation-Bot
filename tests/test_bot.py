@@ -69,6 +69,7 @@ class Rules(unittest.TestCase):
     def test_deployment(self):
         self.assertEqual(rules.deployment(rules.confidence(1.053, 19.99), 19.99), "Full size")
         self.assertEqual(rules.deployment(rules.confidence(1.053, 20.14), 20.14), "Conservative")
+        self.assertEqual(rules.deployment("MODERATE", None), "No entries")
         self.assertEqual(rules.confidence(0.99, 12), "LOW")
         self.assertEqual(rules.regime(0.82, 3.7), "Reflation")
 
@@ -104,12 +105,19 @@ class Planner(unittest.TestCase):
         self.assertGreater(b[3]["score"], a[3]["score"])
         self.assertGreater(a[3]["score"], c[3]["score"])
 
-    def test_conservative_blocks_entries(self):
+    def test_conservative_is_half_size(self):
         bars = market(extra=self.stocks())
         m = dict(MACRO, vix=("", 21.0))
         res = plan_day("A", CFG, bars, m, {"XLV": ["AAA"]}, {}, ACCOUNT, {})
-        self.assertFalse([o for o in res["orders"] if o["side"] == "buy"])
+        buys = [o for o in res["orders"] if o["side"] == "buy"]
+        self.assertEqual(len(buys), 1, res["log"])
+        self.assertLessEqual(buys[0]["qty"] * buys[0]["limit"], 1500.01)   # half of a $3,000 slot
         self.assertTrue(any("Conservative" in l for l in res["log"]))
+
+    def test_missing_vix_blocks_entries(self):
+        bars = market(extra=self.stocks())
+        res = plan_day("A", CFG, bars, dict(MACRO, vix=("", None)), {"XLV": ["AAA"]}, {}, ACCOUNT, {})
+        self.assertFalse([o for o in res["orders"] if o["side"] == "buy"])
 
     def test_exit_below_21ema(self):
         st = self.stocks()

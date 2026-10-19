@@ -59,8 +59,10 @@ def confidence(spy_ratio, vix):
     return "MODERATE"
 
 
-def deployment(conf, vix):
-    if conf == "LOW" or vix is None:
+def deployment(conf, vix, curve=0.0, cpi=0.0):
+    if vix is None or curve is None or cpi is None:
+        return "No entries"          # missing macro data fails closed
+    if conf == "LOW":
         return "Conservative"
     if conf == "HIGH" and vix < 15:
         return "Max conviction"
@@ -69,8 +71,13 @@ def deployment(conf, vix):
     return "Conservative"
 
 
+def size_factor(deploy, conservative_factor=0.5):
+    """Full size / Max conviction = 1.0, Conservative = half-size entries, No entries = 0."""
+    return {"Full size": 1.0, "Max conviction": 1.0, "Conservative": conservative_factor}.get(deploy, 0.0)
+
+
 def can_enter(deploy):
-    return deploy in ("Full size", "Max conviction")
+    return size_factor(deploy) > 0
 
 
 # ---------- sector level ----------

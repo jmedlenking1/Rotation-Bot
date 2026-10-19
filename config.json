@@ -18,6 +18,10 @@
     "scan_top_n_holdings": 25,
     "adx_min": null
   },
+  "deployment": {
+    "conservative_size": 0.5,
+    "_note": "Conservative = new entries at half size. Max conviction = same as Full size (cash account, already 100% deployed)."
+  },
   "ranking": {
     "rs_weight": 60,
     "_note": "Score out of 100: rs_weight points for RS vs SPY, the rest for chart quality (ADX 10, 21 EMA slope 10, closeness to 21 EMA 12, RSI 55-68 8)"
