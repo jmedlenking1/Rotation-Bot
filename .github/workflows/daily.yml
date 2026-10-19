@@ -1,0 +1,36 @@
+name: Daily rotation run
+
+on:
+  schedule:
+    - cron: "40 21 * * 1-5"   # 5:40 PM EDT / 4:40 PM EST, weekdays, after the close
+  workflow_dispatch: {}        # lets you press "Run workflow" by hand
+
+permissions:
+  contents: write              # so it can save state/ and logs/ back to the repo
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tests must pass before anything runs
+        run: python -m unittest discover tests
+      - name: Run the bot
+        env:
+          ALPACA_KEY_A: ${{ secrets.ALPACA_KEY_A }}
+          ALPACA_SECRET_A: ${{ secrets.ALPACA_SECRET_A }}
+          ALPACA_KEY_B: ${{ secrets.ALPACA_KEY_B }}
+          ALPACA_SECRET_B: ${{ secrets.ALPACA_SECRET_B }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TRADE: ${{ vars.TRADE }}
+        run: python -m rotation_bot.bot
+      - name: Save state and log
+        run: |
+          git config user.name "rotation-bot"
+          git config user.email "rotation-bot@users.noreply.github.com"
+          git add state logs || true
+          git commit -m "Daily run $(date -u +%F)" || echo "nothing to save"
+          git push || true

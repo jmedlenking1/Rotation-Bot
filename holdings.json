@@ -1,0 +1,5 @@
+{
+  "_note": "Top holdings of each sector ETF, biggest first. The bot scans the first 25 of a sector when it is LEADING. Claude fills and refreshes this list.",
+  "XLK": [], "XLC": [], "XLI": [], "XLE": [], "XLF": [], "XLY": [],
+  "XLP": [], "XLB": [], "XLV": [], "XLU": [], "XLRE": []
+}

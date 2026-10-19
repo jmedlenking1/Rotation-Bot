@@ -1,0 +1,36 @@
+{
+  "_note": "Every number here comes from the Rotation System Rulebook. Change them here, not in the code.",
+  "plan_a": {
+    "description": "Current method: 3-4 stocks from LEADING sectors, equal dollars",
+    "target_positions": 3,
+    "max_positions": 4
+  },
+  "plan_b": {
+    "description": "70% leading sector ETF(s), 30% split across top stocks",
+    "core_pct": 70,
+    "satellite_count": 2
+  },
+  "entry": {
+    "max_rsi": 70,
+    "max_ema_distance_pct": 10,
+    "sector_max_rsi": 70,
+    "scan_top_n_holdings": 25,
+    "adx_min": null
+  },
+  "trim": {
+    "min_gain_pct": 15,
+    "sell_pct": 30,
+    "divergence_lookback_days": 20
+  },
+  "orders": {
+    "buy_limit_above_close_pct": 1.0,
+    "sell_limit_below_close_pct": 1.0
+  },
+  "safety": {
+    "max_orders_per_day": 4,
+    "max_pct_in_one_ticker": 70,
+    "max_one_day_move_pct": 25,
+    "drawdown_pause_pct": 15,
+    "slot_overrun_pct": 2
+  }
+}
