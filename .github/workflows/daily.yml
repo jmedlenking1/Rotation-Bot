@@ -25,7 +25,7 @@ jobs:
           ALPACA_KEY_B: ${{ secrets.ALPACA_KEY_B }}
           ALPACA_SECRET_B: ${{ secrets.ALPACA_SECRET_B }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          TRADE: ${{ vars.TRADE }}
+          TRADE: ${{ vars.TRADE || 'yes' }}
         run: python -m rotation_bot.bot
       - name: Save state and log
         run: |
