@@ -181,3 +181,23 @@ class Planner(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Scorecard(unittest.TestCase):
+    def test_history_and_render(self):
+        import tempfile
+        from rotation_bot import scorecard
+        path = os.path.join(tempfile.mkdtemp(), "h.json")
+        b1 = {"SPY": [("2026-10-19", 100.0)], "XLE": [("2026-10-19", 50.0)]}
+        b2 = {"SPY": [("2026-10-20", 101.0)], "XLE": [("2026-10-20", 55.0)]}
+        b3 = {"SPY": [("2026-10-21", 99.0)], "XLE": [("2026-10-21", 55.0)]}
+        scorecard.record(path, "2026-10-19", {"A": 9000, "B": 9000}, b1, ["XLE"])
+        scorecard.record(path, "2026-10-20", {"A": 9300, "B": 9100}, b2, ["XLE"])
+        scorecard.record(path, "2026-10-20", {"A": 9300, "B": 9100}, b2, ["XLE"])  # rerun same day: no duplicate
+        h = scorecard.record(path, "2026-10-21", {"A": 9150, "B": 9000}, b3, [])
+        self.assertEqual(len(h["days"]), 3)
+        self.assertAlmostEqual(h["days"][1]["basket"], 110.0)   # XLE +10% while it was LEADING
+        text = scorecard.render(h)
+        self.assertIn("+1.67%", text)      # Plan A 9000 -> 9150
+        self.assertIn("-1.61%", text)      # Plan A drawdown 9300 -> 9150
+        self.assertIn("Too early", text)

@@ -13,7 +13,7 @@ import sys
 import urllib.request
 from datetime import date
 
-from . import data, rules
+from . import data, rules, scorecard
 from .broker import Broker
 from .planner import plan_day
 
@@ -69,7 +69,7 @@ def main():
     bars = data.daily_bars(symbols, key, secret)
     macro = data.macro()
 
-    report = []
+    report, leading = [], None
     for p, broker, _, _ in plans:
         account, positions = accounts[p]
         state_path = "state/plan_%s.json" % p
@@ -91,7 +91,17 @@ def main():
             lines.append("- No orders today.")
         if not res["halted"]:
             _save(state_path, res["state"])
+            leading = [s for s, v in res["sectors"].items() if v["status"] == "LEADING"]
         report += lines + [""]
+
+    if leading is not None and bars.get("SPY"):
+        try:
+            hist = scorecard.record(os.path.join(ROOT, "state/history.json"), bars["SPY"][-1][0],
+                                    {p: accounts[p][0]["equity"] for p, _, _, _ in plans}, bars, leading)
+            with open(os.path.join(ROOT, "scorecard.md"), "w") as f:
+                f.write(scorecard.render(hist))
+        except Exception as e:
+            report.append("- Scorecard update failed: %s" % e)
 
     text = "\n".join(report)
     print(text)
