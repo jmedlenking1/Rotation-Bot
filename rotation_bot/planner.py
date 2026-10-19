@@ -160,11 +160,36 @@ def _rank_stocks(cfg, bars, holdings_map, buyable, secs, held, st, day, log):
             if ok and sym in st["exits"] and not rules.reentry_ok(bars[sym], True):
                 ok, why = False, ["re-entry conditions not met after %s exit" % st["exits"][sym]]
             if ok:
-                out.append((m["rs"], sym, etf, m))
-    out.sort(reverse=True)
+                c = rules.closes(bars[sym])
+                e21 = ind.ema_series(c, 21)
+                m["slope21"] = (e21[-1] / e21[-6] - 1) * 100
+                out.append([m["rs"], sym, etf, m])
+    _score(cfg, out)
+    out.sort(key=lambda x: -x[3]["score"])
     if out:
-        log.append("Passed checklist (by RS): " + ", ".join("%s %+.1f" % (s, rs) for rs, s, _, _ in out[:8]))
-    return out
+        log.append("Passed checklist (by score: 60% RS + 40% chart): " + ", ".join(
+            "%s %.0f (RS %+.1f)" % (s, m["score"], rs) for rs, s, _, m in out[:8]))
+    return [tuple(x) for x in out]
+
+
+def _score(cfg, cands):
+    """Score out of 100. RS share is scaled across today's passers; chart share =
+    trend slope (15) + closeness to the 21 EMA (15) + RSI sweet spot 55-68 (10)."""
+    if not cands:
+        return
+    w = cfg.get("ranking", {}).get("rs_weight", 60)
+    rss = [x[0] for x in cands]
+    lo, hi = min(rss), max(rss)
+    max_dist = cfg["entry"]["max_ema_distance_pct"]
+    for rs, sym, etf, m in cands:
+        rs_part = w * ((rs - lo) / (hi - lo) if hi > lo else 1.0)
+        trend = 15 * max(0.0, min(m["slope21"] / 2.0, 1.0))      # 2%+ rise in the 21 EMA over 5 days = full marks
+        entry = 15 * max(0.0, 1 - m["dist"] / max_dist)          # right at the 21 EMA = full, at the cap = 0
+        r = m["rsi"]
+        rsi_pts = 10.0 if 55 <= r <= 68 else (10 * max(0.0, (r - 45) / 10) if r < 55 else 10 * max(0.0, (70 - r) / 2))
+        chart = (trend + entry + rsi_pts) * (100 - w) / 40
+        m["score"] = rs_part + chart
+        m["chart"] = chart
 
 
 def _buy(sym, dollars, close, buy_limit, reason):

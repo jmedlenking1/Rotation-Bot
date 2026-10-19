@@ -17,6 +17,10 @@
     "scan_top_n_holdings": 25,
     "adx_min": null
   },
+  "ranking": {
+    "rs_weight": 60,
+    "_note": "Score out of 100: rs_weight points for RS vs SPY, the rest for chart quality (trend slope, closeness to 21 EMA, RSI 55-68)"
+  },
   "trim": {
     "min_gain_pct": 15,
     "sell_pct": 30,

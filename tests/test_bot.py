@@ -87,6 +87,16 @@ class Planner(unittest.TestCase):
         for o in buys:
             self.assertLessEqual(o["qty"] * o["limit"], 3000.01)
 
+    def test_score_prefers_clean_chart_over_small_rs_edge(self):
+        from rotation_bot.planner import _score
+        base = {"rsi": 62, "slope21": 2.0}
+        a = [5.0, "A", "XLV", dict(base, dist=9.5)]   # slightly better RS, stretched far above 21 EMA
+        b = [4.6, "B", "XLV", dict(base, dist=1.0)]   # slightly lower RS, sitting near the 21 EMA
+        c = [1.0, "C", "XLV", dict(base, dist=1.0)]
+        _score(CFG, [a, b, c])
+        self.assertGreater(b[3]["score"], a[3]["score"])
+        self.assertGreater(a[3]["score"], c[3]["score"])
+
     def test_conservative_blocks_entries(self):
         bars = market(extra=self.stocks())
         m = dict(MACRO, vix=("", 21.0))
