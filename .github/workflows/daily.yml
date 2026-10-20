@@ -2,8 +2,14 @@ name: Daily rotation run
 
 on:
   schedule:
-    - cron: "40 21 * * 1-5"   # 5:40 PM EDT / 4:40 PM EST, weekdays, after the close
-    - cron: "5 22 * * 1-5"    # backup run 6:05 PM EDT in case GitHub skips or delays the first (reruns are safe)
+    # GitHub's free timer often fires late or skips, so there are several evening slots (UTC).
+    # Reruns are safe: they replace unfilled orders instead of doubling them.
+    - cron: "40 21 * * 1-5"   # 5:40 PM EDT
+    - cron: "7 22 * * 1-5"    # 6:07 PM EDT
+    - cron: "37 22 * * 1-5"   # 6:37 PM EDT
+    - cron: "17 23 * * 1-5"   # 7:17 PM EDT
+    - cron: "3 0 * * 2-6"     # 8:03 PM EDT
+    - cron: "47 0 * * 2-6"    # 8:47 PM EDT
   workflow_dispatch: {}        # lets you press "Run workflow" by hand
 
 permissions:

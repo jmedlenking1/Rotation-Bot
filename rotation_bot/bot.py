@@ -41,12 +41,16 @@ def _save(path, obj):
         json.dump(obj, f, indent=2, sort_keys=True)
 
 
-def notify(topic, title, text):
+def notify(topic, title, text, email=None):
+    """Push the summary via ntfy.sh; if `email` is set, ntfy also forwards it to that inbox."""
     if not topic:
         return
     try:
+        headers = {"Title": title[:200]}
+        if email:
+            headers["Email"] = email
         req = urllib.request.Request("https://ntfy.sh/" + topic, data=text.encode()[:3900],
-                                     headers={"Title": title[:200]}, method="POST")
+                                     headers=headers, method="POST")
         urllib.request.urlopen(req, timeout=20)
     except Exception as e:
         print("ntfy failed:", e)
@@ -123,7 +127,9 @@ def main():
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w") as f:
         f.write(text)
-    notify(os.environ.get("NTFY_TOPIC"), "Rotation bot " + today_ny().isoformat(), text)
+    ncfg = cfg.get("notify", {})
+    notify(os.environ.get("NTFY_TOPIC") or ncfg.get("ntfy_topic"), "Rotation bot " + today_ny().isoformat(), text,
+           ncfg.get("email"))
     return 0
 
 
