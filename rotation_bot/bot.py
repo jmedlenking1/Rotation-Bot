@@ -11,11 +11,17 @@ import json
 import os
 import sys
 import urllib.request
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 from . import data, rules, scorecard
 from .broker import Broker
 from .planner import plan_day
+
+def today_ny():
+    """Today's date on the New York clock (GitHub runs on UTC, which rolls over at 8 PM ET)."""
+    return datetime.now(ZoneInfo("America/New_York")).date()
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -75,7 +81,7 @@ def main():
         state_path = "state/plan_%s.json" % p
         res = plan_day(p, cfg, bars, macro, holdings, positions, account, _load(state_path, {}))
         lines = ["## Plan %s — %s — equity $%.2f, cash $%.2f%s" % (
-            p, date.today().isoformat(), account["equity"], account["cash"], "" if trade else " (DRY RUN)")]
+            p, today_ny().isoformat(), account["equity"], account["cash"], "" if trade else " (DRY RUN)")]
         lines += ["- " + l for l in res["log"]]
         if trade and res["orders"]:
             try:  # a rerun replaces earlier unfilled orders instead of doubling them
@@ -112,12 +118,12 @@ def main():
 
     text = "\n".join(report)
     print(text)
-    _log_path = "logs/%s.md" % date.today().isoformat()
+    _log_path = "logs/%s.md" % today_ny().isoformat()
     full = os.path.join(ROOT, _log_path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w") as f:
         f.write(text)
-    notify(os.environ.get("NTFY_TOPIC"), "Rotation bot " + date.today().isoformat(), text)
+    notify(os.environ.get("NTFY_TOPIC"), "Rotation bot " + today_ny().isoformat(), text)
     return 0
 
 
