@@ -43,7 +43,6 @@
     "slot_overrun_pct": 2
   },
   "notify": {
-    "ntfy_topic": "rotbot-jmk-309b7c622597",
-    "email": "medlenkingtrade@gmail.com"
+    "ntfy_topic": "rotbot-jmk-309b7c622597"
   }
 }
