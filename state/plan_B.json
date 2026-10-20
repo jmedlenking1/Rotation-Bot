@@ -1,5 +1,18 @@
 {
-  "divergence": {},
+  "divergence": {
+    "OXY": {
+      "active": false,
+      "trimmed": false
+    },
+    "PSX": {
+      "active": false,
+      "trimmed": false
+    },
+    "XLE": {
+      "active": false,
+      "trimmed": false
+    }
+  },
   "exits": {},
   "hwm": 9000.0
 }

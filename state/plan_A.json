@@ -1,5 +1,18 @@
 {
-  "divergence": {},
+  "divergence": {
+    "AMGN": {
+      "active": false,
+      "trimmed": false
+    },
+    "COR": {
+      "active": false,
+      "trimmed": false
+    },
+    "ISRG": {
+      "active": false,
+      "trimmed": false
+    }
+  },
   "exits": {},
   "hwm": 9000.0
 }
