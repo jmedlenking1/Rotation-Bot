@@ -70,14 +70,27 @@ def main():
         return 1
     key, secret = plans[0][2], plans[0][3]
 
-    accounts = {p: (b.account(), b.positions()) for p, b, _, _ in plans}
-    held = set().union(*[set(pos) for _, pos in accounts.values()])
-    scan = set()
-    for names in holdings.values():
-        scan.update(names[: cfg["entry"]["scan_top_n_holdings"]])
-    symbols = sorted({"SPY", *rules.SECTORS, *held, *scan})
-    bars = data.daily_bars(symbols, key, secret)
-    macro = data.macro()
+    try:  # downloads can fail (FRED/Alpaca hiccups): don't crash, record it and let the next run retry
+        accounts = {p: (b.account(), b.positions()) for p, b, _, _ in plans}
+        held = set().union(*[set(pos) for _, pos in accounts.values()])
+        scan = set()
+        for names in holdings.values():
+            scan.update(names[: cfg["entry"]["scan_top_n_holdings"]])
+        symbols = sorted({"SPY", *rules.SECTORS, *held, *scan})
+        bars = data.daily_bars(symbols, key, secret)
+        macro = data.macro()
+    except Exception as e:
+        msg = ("## Data download failed — %s\n- HALT: couldn't download market data (%s). No orders placed. "
+               "The next scheduled run will retry." % (today_ny().isoformat(), e))
+        print(msg)
+        full = os.path.join(ROOT, "logs/%s.md" % today_ny().isoformat())
+        if not os.path.exists(full):  # never overwrite a good log from an earlier run
+            os.makedirs(os.path.dirname(full), exist_ok=True)
+            with open(full, "w") as f:
+                f.write(msg)
+        return 0
+    # Label everything by the market date the data is from, not the clock (late runs can happen after midnight).
+    data_day = bars["SPY"][-1][0] if bars.get("SPY") else today_ny().isoformat()
 
     report, leading = [], None
     for p, broker, _, _ in plans:
@@ -85,7 +98,7 @@ def main():
         state_path = "state/plan_%s.json" % p
         res = plan_day(p, cfg, bars, macro, holdings, positions, account, _load(state_path, {}))
         lines = ["## Plan %s — %s — equity $%.2f, cash $%.2f%s" % (
-            p, today_ny().isoformat(), account["equity"], account["cash"], "" if trade else " (DRY RUN)")]
+            p, data_day, account["equity"], account["cash"], "" if trade else " (DRY RUN)")]
         lines += ["- " + l for l in res["log"]]
         if trade and res["orders"]:
             try:  # a rerun replaces earlier unfilled orders instead of doubling them
@@ -122,13 +135,13 @@ def main():
 
     text = "\n".join(report)
     print(text)
-    _log_path = "logs/%s.md" % today_ny().isoformat()
+    _log_path = "logs/%s.md" % data_day
     full = os.path.join(ROOT, _log_path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w") as f:
         f.write(text)
     ncfg = cfg.get("notify", {})
-    notify(os.environ.get("NTFY_TOPIC") or ncfg.get("ntfy_topic"), "Rotation bot " + today_ny().isoformat(), text,
+    notify(os.environ.get("NTFY_TOPIC") or ncfg.get("ntfy_topic"), "Rotation bot " + data_day, text,
            ncfg.get("email"))
     return 0
 

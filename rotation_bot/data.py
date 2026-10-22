@@ -12,7 +12,7 @@ ALPACA_DATA = "https://data.alpaca.markets/v2/stocks/bars"
 FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv?id="
 
 
-def _get(url, headers=None, tries=3):
+def _get(url, headers=None, tries=5):
     last = None
     for i in range(tries):
         try:
@@ -21,7 +21,8 @@ def _get(url, headers=None, tries=3):
                 return r.read().decode()
         except Exception as e:  # network hiccup: retry with backoff
             last = e
-            time.sleep(2 * (i + 1))
+            if i < tries - 1:
+                time.sleep(3 * 2 ** i)  # 3, 6, 12, 24 s
     raise RuntimeError("GET failed: %s (%s)" % (url.split("?")[0], last))
 
 
