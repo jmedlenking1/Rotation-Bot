@@ -4,15 +4,13 @@
       "active": false,
       "trimmed": false
     },
-    "COR": {
-      "active": false,
-      "trimmed": false
-    },
     "ISRG": {
       "active": false,
       "trimmed": false
     }
   },
-  "exits": {},
+  "exits": {
+    "COR": "2026-10-27"
+  },
   "hwm": 9156.1
 }

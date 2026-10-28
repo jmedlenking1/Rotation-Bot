@@ -4,15 +4,13 @@
       "active": false,
       "trimmed": false
     },
-    "PSX": {
-      "active": false,
-      "trimmed": false
-    },
     "XLE": {
       "active": false,
       "trimmed": false
     }
   },
-  "exits": {},
+  "exits": {
+    "PSX": "2026-10-27"
+  },
   "hwm": 9098.36
 }
