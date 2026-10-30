@@ -1,5 +1,9 @@
 {
   "divergence": {
+    "APA": {
+      "active": false,
+      "trimmed": false
+    },
     "OXY": {
       "active": false,
       "trimmed": false

@@ -4,6 +4,10 @@
       "active": false,
       "trimmed": false
     },
+    "APA": {
+      "active": false,
+      "trimmed": false
+    },
     "ISRG": {
       "active": false,
       "trimmed": false
@@ -12,5 +16,5 @@
   "exits": {
     "COR": "2026-10-27"
   },
-  "hwm": 9156.1
+  "hwm": 9223.68
 }
