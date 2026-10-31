@@ -4,8 +4,8 @@
 
 | | Return | Worst drawdown |
 | --- | --- | --- |
-| Plan A (stocks) | +1.66% | -1.44% |
-| Plan B (70/30) | +1.33% | -2.19% |
+| Plan A (stocks) | +1.60% | -1.44% |
+| Plan B (70/30) | +1.35% | -2.19% |
 | SPY (hold) | -1.42% | -2.25% |
 | Leading-sector basket | +2.53% | -0.98% |
 
