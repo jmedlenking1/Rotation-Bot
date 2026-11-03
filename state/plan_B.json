@@ -4,16 +4,13 @@
       "active": false,
       "trimmed": false
     },
-    "OXY": {
-      "active": false,
-      "trimmed": false
-    },
     "XLE": {
       "active": true,
       "trimmed": false
     }
   },
   "exits": {
+    "OXY": "2026-11-02",
     "PSX": "2026-10-27"
   },
   "hwm": 9121.4
