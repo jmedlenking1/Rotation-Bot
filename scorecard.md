@@ -4,13 +4,13 @@
 
 | | Return | Worst drawdown |
 | --- | --- | --- |
-| Plan A (stocks) | -2.16% | -4.44% |
-| Plan B (70/30) | -5.03% | -6.29% |
+| Plan A (stocks) | -2.27% | -4.54% |
+| Plan B (70/30) | -5.01% | -6.27% |
 | SPY (hold) | -1.59% | -2.73% |
 | Leading-sector basket | +1.57% | -0.98% |
 
 ## Copy-trading checklist
-- **Plan A:** ❌ 42+ trading days, ❌ beats SPY, ❌ beats leading basket. Worst drawdown -4.4%: could you sit through that with real money?
+- **Plan A:** ❌ 42+ trading days, ❌ beats SPY, ❌ beats leading basket. Worst drawdown -4.5%: could you sit through that with real money?
 - **Plan B:** ❌ 42+ trading days, ❌ beats SPY, ❌ beats leading basket. Worst drawdown -6.3%: could you sit through that with real money?
 
 Too early to judge. Keep practicing.
