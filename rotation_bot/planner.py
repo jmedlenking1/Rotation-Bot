@@ -116,6 +116,11 @@ def plan_day(plan, cfg, bars, macro, holdings_map, positions, account, state):
 
     # 5. entries
     buys = []
+    # Sells and buys both fill at tomorrow's open, so money from today's exits/trims counts toward sizing.
+    proceeds = sum(o["qty"] * o["limit"] for o in orders if o["side"] == "sell")
+    if proceeds:
+        log.append("Sizing with cash %.2f + %.2f expected from today's sells." % (cash, proceeds))
+        cash += proceeds
     factor = rules.size_factor(mv["deployment"], cfg.get("deployment", {}).get("conservative_size", 0.5))
     if not rules.can_enter(mv["deployment"]):
         log.append("No new entries: deployment is %s." % mv["deployment"])
@@ -247,6 +252,15 @@ def _plan_b(cfg, bars, candidates, buyable, held, equity, cash, buy_limit, log):
         cores.append(etf)
     buys = []
     core_each = equity * b["core_pct"] / 100 / n_core
+    for etf in [e for e in held_cores if e in buyable]:  # top up an under-sized core; skipped if its sector RSI is 70+
+        have_val = held[etf]["qty"] * bars[etf][-1][1]
+        short = core_each - have_val
+        if short > core_each * 0.10 and cash > 0:
+            o = _buy(etf, min(short, cash), bars[etf][-1][1], buy_limit,
+                     "CORE TOP-UP %s to %d%% of account (held %.0f of %.0f)" % (etf, b["core_pct"] // n_core, have_val, core_each))
+            if o:
+                buys.append(o)
+                cash -= o["qty"] * o["limit"]
     for etf in cores:
         o = _buy(etf, min(core_each, cash), bars[etf][-1][1], buy_limit, "CORE ENTRY %s (%d%% of account)" % (etf, b["core_pct"] // n_core))
         if o:
