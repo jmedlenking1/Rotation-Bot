@@ -1,17 +1,10 @@
 {
-  "divergence": {
-    "APA": {
-      "active": false,
-      "trimmed": false
-    },
-    "XLE": {
-      "active": true,
-      "trimmed": false
-    }
-  },
+  "divergence": {},
   "exits": {
+    "APA": "2026-11-03",
     "OXY": "2026-11-02",
-    "PSX": "2026-10-27"
+    "PSX": "2026-10-27",
+    "XLE": "2026-11-03"
   },
   "hwm": 9121.4
 }
