@@ -4,8 +4,12 @@
       "active": false,
       "trimmed": false
     },
+    "EL": {
+      "active": false,
+      "trimmed": false
+    },
     "ISRG": {
-      "active": true,
+      "active": false,
       "trimmed": false
     }
   },
