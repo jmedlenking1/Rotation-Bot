@@ -1,5 +1,13 @@
 {
   "divergence": {
+    "MRNA": {
+      "active": false,
+      "trimmed": false
+    },
+    "REGN": {
+      "active": false,
+      "trimmed": false
+    },
     "XLV": {
       "active": false,
       "trimmed": false
