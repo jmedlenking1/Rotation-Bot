@@ -111,12 +111,16 @@ def main():
             status = "logged only"
             if trade:
                 try:
-                    r = broker.limit_order(o["symbol"], o["qty"], o["side"], o["limit"])
+                    if o["side"] == "sell":
+                        r = broker.market_order(o["symbol"], o["qty"], "sell")
+                    else:
+                        r = broker.limit_order(o["symbol"], o["qty"], o["side"], o["limit"])
                     status = "sent (%s)" % r.get("status")
                 except Exception as e:
                     status = "FAILED: %s" % e
-            lines.append("- ORDER %s %d %s @ %.2f limit — %s — %s" % (
-                o["side"].upper(), o["qty"], o["symbol"], o["limit"], o["reason"], status))
+            how = ("at market (est. %.2f)" % o["limit"]) if o["side"] == "sell" else ("@ %.2f limit" % o["limit"])
+            lines.append("- ORDER %s %d %s %s — %s — %s" % (
+                o["side"].upper(), o["qty"], o["symbol"], how, o["reason"], status))
         if not res["orders"]:
             lines.append("- No orders today.")
         if not res["halted"]:

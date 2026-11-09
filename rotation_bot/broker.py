@@ -42,3 +42,9 @@ class Broker:
         return self._req("POST", "/v2/orders", {
             "symbol": symbol, "qty": str(int(qty)), "side": side, "type": "limit",
             "time_in_force": "day", "limit_price": "%.2f" % limit_price})
+
+    def market_order(self, symbol, qty, side):
+        # Placed after the close, a day market order fills at the next open, so exits always fill (even on a gap down).
+        return self._req("POST", "/v2/orders", {
+            "symbol": symbol, "qty": str(int(qty)), "side": side, "type": "market",
+            "time_in_force": "day"})
