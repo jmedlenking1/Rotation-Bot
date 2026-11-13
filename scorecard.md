@@ -1,16 +1,16 @@
 # Bot scorecard
 
-2026-10-19 to 2026-11-11, 17 trading days (goal: 42).
+2026-10-19 to 2026-11-12, 18 trading days (goal: 42).
 
 | | Return | Worst drawdown |
 | --- | --- | --- |
-| Plan A (stocks) | -2.15% | -5.24% |
-| Plan B (70/30) | -4.86% | -9.45% |
-| SPY (hold) | -0.89% | -5.13% |
-| Leading-sector basket | +3.54% | -2.77% |
+| Plan A (stocks) | -3.22% | -5.47% |
+| Plan B (70/30) | -6.54% | -9.45% |
+| SPY (hold) | -1.23% | -5.13% |
+| Leading-sector basket | +3.07% | -2.77% |
 
 ## Copy-trading checklist
-- **Plan A:** ❌ 42+ trading days, ❌ beats SPY, ❌ beats leading basket. Worst drawdown -5.2%: could you sit through that with real money?
+- **Plan A:** ❌ 42+ trading days, ❌ beats SPY, ❌ beats leading basket. Worst drawdown -5.5%: could you sit through that with real money?
 - **Plan B:** ❌ 42+ trading days, ❌ beats SPY, ❌ beats leading basket. Worst drawdown -9.5%: could you sit through that with real money?
 
 Too early to judge. Keep practicing.
