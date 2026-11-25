@@ -1,7 +1,7 @@
 {
   "divergence": {
     "REGN": {
-      "active": false,
+      "active": true,
       "trimmed": false
     }
   },
